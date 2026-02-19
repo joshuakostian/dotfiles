@@ -1,0 +1,14 @@
+theme = light:zen_light,dark:zen_dark
+
+font-family = "IosevkaTermSlab Nerd Font Mono"
+font-feature = -calt
+font-size = 22
+
+adjust-underline-position = 10
+adjust-underline-thickness = 2
+
+cursor-style = block
+cursor-style-blink = false
+shell-integration-features = no-cursor
+
+custom-shader = ~/.config/ghostty/shaders/in-game-crt-cursor.glsl
