@@ -60,6 +60,19 @@ require("lazy").setup({
 			end,
 		},
 		{
+			"f-person/auto-dark-mode.nvim",
+			opts = {
+				set_dark_mode = function()
+					require("zen").setup({ variant = "dark" })
+					vim.cmd.colorscheme("zen")
+				end,
+				set_light_mode = function()
+					require("zen").setup({ variant = "light" })
+					vim.cmd.colorscheme("zen")
+				end,
+			},
+		},
+		{
 			"nvim-lualine/lualine.nvim",
 			dependencies = { "nvim-tree/nvim-web-devicons" },
 			opts = {},
@@ -114,6 +127,7 @@ require("lazy").setup({
 					nerd_font_variant = "mono",
 				},
 				completion = { documentation = { auto_show = true } },
+				signature = { enabled = true },
 				sources = {
 					default = { "lsp", "path", "snippets", "buffer" },
 				},
@@ -127,13 +141,9 @@ require("lazy").setup({
 			priority = 1000,
 			config = function()
 				require("tiny-inline-diagnostic").setup({
-					preset = "simple",
+					preset = "ghost",
 					transparent_bg = true,
-					show_code = false,
 					options = {
-						add_messages = {
-							display_count = true,
-						},
 						multilines = {
 							enabled = true,
 						},
@@ -176,8 +186,8 @@ require("lazy").setup({
 		{
 			"karb94/neoscroll.nvim",
 			opts = {
-        easing = 'sine',
-      },
+				easing = "sine",
+			},
 		},
 		-- Code manipulation
 		{
@@ -186,6 +196,13 @@ require("lazy").setup({
 				require("inc_rename").setup()
 				vim.keymap.set("n", "<leader>rn", ":IncRename ", { desc = "Inc Rename" })
 			end,
+		},
+		{
+			"windwp/nvim-autopairs",
+			event = "InsertEnter",
+			config = true,
+			-- use opts = {} for passing setup options
+			-- this is equivalent to setup({}) function
 		},
 		-- FZF
 		{
