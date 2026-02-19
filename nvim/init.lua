@@ -142,7 +142,7 @@ require("lazy").setup({
 				vim.diagnostic.config({ virtual_text = false }) -- Disable Neovim's default virtual text diagnostics
 			end,
 		},
-		-- Treesitter
+		-- Treesitter and code navigation
 		{
 			"nvim-treesitter/nvim-treesitter",
 			lazy = false,
@@ -155,6 +155,36 @@ require("lazy").setup({
 						vim.treesitter.start()
 					end,
 				})
+			end,
+		},
+		{
+			"folke/flash.nvim",
+			event = "VeryLazy",
+			---@type Flash.Config
+			opts = {},
+			keys = {
+				{
+					"s",
+					mode = { "n", "x", "o" },
+					function()
+						require("flash").jump()
+					end,
+					desc = "Flash",
+				},
+			},
+		},
+		{
+			"karb94/neoscroll.nvim",
+			opts = {
+        easing = 'sine',
+      },
+		},
+		-- Code manipulation
+		{
+			"smjonas/inc-rename.nvim",
+			config = function()
+				require("inc_rename").setup()
+				vim.keymap.set("n", "<leader>rn", ":IncRename ", { desc = "Inc Rename" })
 			end,
 		},
 		-- FZF
