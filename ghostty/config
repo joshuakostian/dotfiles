@@ -1,4 +1,5 @@
-theme = light:zen_light,dark:zen_dark
+theme = "zen_dark"
+background-opacity = 0.9
 
 font-family = "IosevkaTermSlab Nerd Font Mono"
 font-feature = -calt

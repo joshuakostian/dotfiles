@@ -56,21 +56,11 @@ require("lazy").setup({
 			lazy = false,
 			priority = 1000,
 			config = function()
+        require("zen").setup({
+          transparent = true
+        })
 				vim.cmd.colorscheme("zen")
 			end,
-		},
-		{
-			"f-person/auto-dark-mode.nvim",
-			opts = {
-				set_dark_mode = function()
-					require("zen").setup({ variant = "dark" })
-					vim.cmd.colorscheme("zen")
-				end,
-				set_light_mode = function()
-					require("zen").setup({ variant = "light" })
-					vim.cmd.colorscheme("zen")
-				end,
-			},
 		},
 		{
 			"nvim-lualine/lualine.nvim",
@@ -92,7 +82,20 @@ require("lazy").setup({
 			},
 			dependencies = {
 				{ "mason-org/mason.nvim", opts = {} },
-				"neovim/nvim-lspconfig",
+				{
+					"neovim/nvim-lspconfig",
+					config = function()
+						vim.lsp.config("lua_ls", {
+							settings = {
+								Lua = {
+									diagnostics = {
+										globals = { "vim" },
+									},
+								},
+							},
+						})
+					end,
+				},
 				{
 					"WhoIsSethDaniel/mason-tool-installer.nvim",
 					opts = {
@@ -151,6 +154,10 @@ require("lazy").setup({
 				})
 				vim.diagnostic.config({ virtual_text = false }) -- Disable Neovim's default virtual text diagnostics
 			end,
+		},
+		{
+			"j-hui/fidget.nvim",
+			opts = {},
 		},
 		-- Treesitter and code navigation
 		{
@@ -222,6 +229,7 @@ require("lazy").setup({
 				vim.keymap.set("n", "<leader>ff", "<cmd>FzfLua files<cr>", { desc = "Find Files" })
 				vim.keymap.set("n", "<leader><leader>", "<cmd>FzfLua buffers<cr>", { desc = "Open Buffers" })
 				vim.keymap.set("n", "<leader>fg", "<cmd>FzfLua live_grep_native<cr>", { desc = "Grep Project" })
+				vim.keymap.set("n", "<leader>fd", "<cmd>FzfLua lsp_document_symbols<cr>", { desc = "Document Symbols" })
 			end,
 			---@diagnostic enable: missing-fields
 		},
