@@ -1,5 +1,10 @@
-theme = "zen_dark"
-background-opacity = 0.9
+theme = zen_dark
+background-opacity = .9
+window-padding-x = 30
+window-padding-y = 10
+
+macos-titlebar-style = "transparent"
+macos-icon = "retro"
 
 font-family = "IosevkaTermSlab Nerd Font Mono"
 font-feature = -calt

@@ -27,6 +27,7 @@ vim.o.signcolumn = "yes"
 vim.opt.fillchars = { eob = " " }
 
 vim.o.cursorline = true
+vim.opt.guicursor = ""
 vim.opt.showmode = false
 vim.o.winborder = "bold"
 
@@ -56,17 +57,14 @@ require("lazy").setup({
 			lazy = false,
 			priority = 1000,
 			config = function()
-        require("zen").setup({
-          transparent = true
-        })
-				vim.cmd.colorscheme("zen")
+				require("zen").setup({
+					transparent = true,
+				})
+				vim.cmd("colorscheme zen")
 			end,
 		},
-		{
-			"nvim-lualine/lualine.nvim",
-			dependencies = { "nvim-tree/nvim-web-devicons" },
-			opts = {},
-		},
+		{ "nvim-mini/mini.statusline", version = false, opts = {} },
+		{ "lewis6991/gitsigns.nvim", opts = {} },
 		{
 			"lukas-reineke/indent-blankline.nvim",
 			main = "ibl",
@@ -175,6 +173,24 @@ require("lazy").setup({
 			end,
 		},
 		{
+			"christoomey/vim-tmux-navigator",
+			cmd = {
+				"TmuxNavigateLeft",
+				"TmuxNavigateDown",
+				"TmuxNavigateUp",
+				"TmuxNavigateRight",
+				"TmuxNavigatePrevious",
+				"TmuxNavigatorProcessList",
+			},
+			keys = {
+				{ "<c-h>", "<cmd><C-U>TmuxNavigateLeft<cr>" },
+				{ "<c-j>", "<cmd><C-U>TmuxNavigateDown<cr>" },
+				{ "<c-k>", "<cmd><C-U>TmuxNavigateUp<cr>" },
+				{ "<c-l>", "<cmd><C-U>TmuxNavigateRight<cr>" },
+				{ "<c-\\>", "<cmd><C-U>TmuxNavigatePrevious<cr>" },
+			},
+		},
+		{
 			"folke/flash.nvim",
 			event = "VeryLazy",
 			---@type Flash.Config
@@ -194,6 +210,22 @@ require("lazy").setup({
 			"karb94/neoscroll.nvim",
 			opts = {
 				easing = "sine",
+			},
+		},
+		{
+			"folke/which-key.nvim",
+			event = "VeryLazy",
+			opts = {
+				preset = "helix",
+			},
+			keys = {
+				{
+					"<leader>?",
+					function()
+						require("which-key").show({ global = false })
+					end,
+					desc = "Buffer Local Keymaps (which-key)",
+				},
 			},
 		},
 		-- Code manipulation
@@ -265,7 +297,7 @@ require("lazy").setup({
 	},
 
 	-- Lazy opts
-	install = { colorscheme = { "zen" } },
+	install = { colorscheme = { "vague" } },
 	checker = { enabled = false },
 	ui = { border = "bold" },
 })
