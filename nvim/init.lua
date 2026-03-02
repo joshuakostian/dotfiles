@@ -24,20 +24,18 @@ vim.o.clipboard = "unnamedplus"
 
 vim.o.number = true
 vim.o.signcolumn = "yes"
+
 vim.opt.fillchars = { eob = " " }
 
 vim.o.cursorline = true
-vim.opt.guicursor = ""
-vim.opt.showmode = false
+vim.opt.showmode = true
 vim.o.winborder = "bold"
 
-vim.o.tabstop = 2
-vim.o.softtabstop = 2
-vim.o.shiftwidth = 2
+vim.o.tabstop = 4
+vim.o.softtabstop = -1
+vim.o.shiftwidth = 4
 vim.o.expandtab = true
-vim.o.smarttab = true
 vim.o.autoindent = true
-vim.o.smartindent = true
 vim.o.shiftround = true
 vim.o.wrap = false
 
@@ -48,10 +46,15 @@ vim.o.scrolloff = 5
 vim.o.ignorecase = true
 vim.o.smartcase = true
 
+-- Misc.
+vim.keymap.set("n", "+", "$", { noremap = true })
+vim.keymap.set("n", "<C-s>", "<cmd>wall<CR>", { desc = "Save all buffers" })
+
 -- Setup lazy.nvim
 require("lazy").setup({
 	spec = {
-		-- Colorscheme and appearance
+
+		-- Colorscheme & appearance
 		{
 			"nendix/zen.nvim",
 			lazy = false,
@@ -60,11 +63,9 @@ require("lazy").setup({
 				require("zen").setup({
 					transparent = true,
 				})
-				vim.cmd("colorscheme zen")
+				vim.cmd.colorscheme("zen")
 			end,
 		},
-		{ "nvim-mini/mini.statusline", version = false, opts = {} },
-		{ "lewis6991/gitsigns.nvim", opts = {} },
 		{
 			"lukas-reineke/indent-blankline.nvim",
 			main = "ibl",
@@ -72,49 +73,50 @@ require("lazy").setup({
 			---@type ibl.config
 			opts = {},
 		},
-		-- LSP, formatter, code complete and diagnostics
+		{
+			"brenoprata10/nvim-highlight-colors",
+			opts = {
+				render = "virtual",
+				virtual_symbol = "■",
+			},
+		},
+
+		-- Mason/Lspconfig
 		{
 			"mason-org/mason-lspconfig.nvim",
 			opts = {
-				ensure_installed = { "lua_ls", "rust_analyzer" },
+				ensure_installed = { "lua_ls", "rust_analyzer", "clangd" },
 			},
 			dependencies = {
 				{ "mason-org/mason.nvim", opts = {} },
-				{
-					"neovim/nvim-lspconfig",
-					config = function()
-						vim.lsp.config("lua_ls", {
-							settings = {
-								Lua = {
-									diagnostics = {
-										globals = { "vim" },
-									},
-								},
-							},
-						})
-					end,
-				},
+				"neovim/nvim-lspconfig",
 				{
 					"WhoIsSethDaniel/mason-tool-installer.nvim",
 					opts = {
-						ensure_installed = { "stylua" },
+						ensure_installed = { "stylua", "clang-format" },
 					},
 				},
 			},
 		},
 		{
 			"stevearc/conform.nvim",
-			config = function()
-				require("conform").setup({
-					formatters_by_ft = {
-						lua = { "stylua" },
-						rust = { "rustfmt" },
-					},
-				})
-				vim.keymap.set("n", "<leader>cf", function()
-					require("conform").format({ async = true, lsp_fallback = true })
-				end, { desc = "Format buffer" })
-			end,
+			keys = {
+				{
+					"<leader>cf",
+					function()
+						require("conform").format({ async = true })
+					end,
+					mode = "",
+					desc = "Format buffer",
+				},
+			},
+			opts = {
+				formatters_by_ft = {
+					lua = { "stylua" },
+					rust = { "rustfmt" },
+					cpp = { "clang-format" },
+				},
+			},
 		},
 		{
 			"saghen/blink.cmp",
@@ -137,57 +139,70 @@ require("lazy").setup({
 			opts_extend = { "sources.default" },
 		},
 		{
-			"rachartier/tiny-inline-diagnostic.nvim",
-			event = "VeryLazy",
-			priority = 1000,
-			config = function()
-				require("tiny-inline-diagnostic").setup({
-					preset = "ghost",
-					transparent_bg = true,
-					options = {
-						multilines = {
-							enabled = true,
-						},
-					},
-				})
-				vim.diagnostic.config({ virtual_text = false }) -- Disable Neovim's default virtual text diagnostics
-			end,
-		},
-		{
 			"j-hui/fidget.nvim",
 			opts = {},
 		},
-		-- Treesitter and code navigation
+
+		-- Treesitter
 		{
 			"nvim-treesitter/nvim-treesitter",
 			lazy = false,
 			build = ":TSUpdate",
 			config = function()
-				require("nvim-treesitter").install({ "rust", "lua" })
+				require("nvim-treesitter").install({ "rust", "lua", "cpp" })
 				vim.api.nvim_create_autocmd("FileType", {
-					pattern = { "rust", "lua" },
+					pattern = { "rust", "lua", "cpp" },
 					callback = function()
 						vim.treesitter.start()
 					end,
 				})
 			end,
 		},
+
+		-- Files & navigation
 		{
-			"christoomey/vim-tmux-navigator",
-			cmd = {
-				"TmuxNavigateLeft",
-				"TmuxNavigateDown",
-				"TmuxNavigateUp",
-				"TmuxNavigateRight",
-				"TmuxNavigatePrevious",
-				"TmuxNavigatorProcessList",
+			"ibhagwan/fzf-lua",
+			dependencies = { "nvim-tree/nvim-web-devicons" },
+			---@module "fzf-lua"
+			---@type fzf-lua.Config|{}
+			---@diagnostic disable: missing-fields
+			config = function()
+				require("fzf-lua").setup({
+					winopts = {
+						height = 0.95,
+						width = 0.95,
+					},
+				})
+				local map = vim.keymap.set
+				map("n", "<leader>ff", "<cmd>FzfLua files<cr>", { desc = "Find Files" })
+				map("n", "<leader><leader>", "<cmd>FzfLua buffers<cr>", { desc = "Open Buffers" })
+				map("n", "<leader>fg", "<cmd>FzfLua live_grep<cr>", { desc = "Grep Project" })
+				map("n", "<leader>fs", "<cmd>FzfLua lsp_document_symbols<cr>", { desc = "Document Symbols" })
+				map("n", "<leader>fd", "<cmd>FzfLua lsp_document_diagnostics<cr>", { desc = "Document Diagnostics" })
+			end,
+			---@diagnostic enable: missing-fields
+		},
+		{
+			"smjonas/inc-rename.nvim",
+			config = function()
+				require("inc_rename").setup()
+				vim.keymap.set("n", "<leader>rn", ":IncRename ", { desc = "Inc Rename" })
+			end,
+		},
+		{
+			"folke/which-key.nvim",
+			event = "VeryLazy",
+			opts = {
+				preset = "helix",
 			},
 			keys = {
-				{ "<c-h>", "<cmd><C-U>TmuxNavigateLeft<cr>" },
-				{ "<c-j>", "<cmd><C-U>TmuxNavigateDown<cr>" },
-				{ "<c-k>", "<cmd><C-U>TmuxNavigateUp<cr>" },
-				{ "<c-l>", "<cmd><C-U>TmuxNavigateRight<cr>" },
-				{ "<c-\\>", "<cmd><C-U>TmuxNavigatePrevious<cr>" },
+				{
+					"<leader>?",
+					function()
+						require("which-key").show({ global = false })
+					end,
+					desc = "Buffer Local Keymaps (which-key)",
+				},
 			},
 		},
 		{
@@ -213,91 +228,37 @@ require("lazy").setup({
 			},
 		},
 		{
-			"folke/which-key.nvim",
+			"rachartier/tiny-inline-diagnostic.nvim",
 			event = "VeryLazy",
-			opts = {
-				preset = "helix",
-			},
-			keys = {
-				{
-					"<leader>?",
-					function()
-						require("which-key").show({ global = false })
-					end,
-					desc = "Buffer Local Keymaps (which-key)",
-				},
-			},
-		},
-		-- Code manipulation
-		{
-			"smjonas/inc-rename.nvim",
+			priority = 1000,
 			config = function()
-				require("inc_rename").setup()
-				vim.keymap.set("n", "<leader>rn", ":IncRename ", { desc = "Inc Rename" })
-			end,
-		},
-		{
-			"windwp/nvim-autopairs",
-			event = "InsertEnter",
-			config = true,
-			-- use opts = {} for passing setup options
-			-- this is equivalent to setup({}) function
-		},
-		-- FZF
-		{
-			"ibhagwan/fzf-lua",
-			dependencies = { "nvim-tree/nvim-web-devicons" },
-			-- dependencies = { "nvim-mini/mini.icons" },
-			---@module "fzf-lua"
-			---@type fzf-lua.Config|{}
-			---@diagnostic disable: missing-fields
-			config = function()
-				require("fzf-lua").setup({
-					winopts = {
-						height = 0.95,
-						width = 0.95,
-					},
+				require("tiny-inline-diagnostic").setup({
+					preset = "simple",
 				})
-				vim.keymap.set("n", "<leader>ff", "<cmd>FzfLua files<cr>", { desc = "Find Files" })
-				vim.keymap.set("n", "<leader><leader>", "<cmd>FzfLua buffers<cr>", { desc = "Open Buffers" })
-				vim.keymap.set("n", "<leader>fg", "<cmd>FzfLua live_grep_native<cr>", { desc = "Grep Project" })
-				vim.keymap.set("n", "<leader>fd", "<cmd>FzfLua lsp_document_symbols<cr>", { desc = "Document Symbols" })
+				vim.diagnostic.config({ virtual_text = false }) -- Disable Neovim's default virtual text diagnostics
 			end,
-			---@diagnostic enable: missing-fields
 		},
-		-- Yazi
-		---@type LazySpec
 		{
-			"mikavilpas/yazi.nvim",
-			version = "*", -- use the latest stable version
-			event = "VeryLazy",
-			dependencies = {
-				{ "nvim-lua/plenary.nvim", lazy = true },
+			"christoomey/vim-tmux-navigator",
+			cmd = {
+				"TmuxNavigateLeft",
+				"TmuxNavigateDown",
+				"TmuxNavigateUp",
+				"TmuxNavigateRight",
+				"TmuxNavigatePrevious",
+				"TmuxNavigatorProcessList",
 			},
 			keys = {
-				{
-					"<leader>-",
-					mode = { "n", "v" },
-					"<cmd>Yazi<cr>",
-					desc = "Open yazi at the current file",
-				},
+				{ "<c-h>", "<cmd><C-U>TmuxNavigateLeft<cr>" },
+				{ "<c-j>", "<cmd><C-U>TmuxNavigateDown<cr>" },
+				{ "<c-k>", "<cmd><C-U>TmuxNavigateUp<cr>" },
+				{ "<c-l>", "<cmd><C-U>TmuxNavigateRight<cr>" },
+				{ "<c-\\>", "<cmd><C-U>TmuxNavigatePrevious<cr>" },
 			},
-			---@type YaziConfig | {}
-			opts = {
-				open_for_directories = true,
-				keymaps = {
-					show_help = "<f1>",
-				},
-			},
-			-- if you use `open_for_directories=true`, this is recommended
-			init = function()
-				vim.g.loaded_netrwPlugin = 1
-			end,
 		},
 	},
 
-	-- Lazy opts
-	install = { colorscheme = { "vague" } },
+	install = { colorscheme = { "koda" } },
 	checker = { enabled = false },
 	ui = { border = "bold" },
 })
