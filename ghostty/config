@@ -1,16 +1,15 @@
-theme = zen_dark
+theme = lackluster
 window-padding-x = 30
 window-padding-y = 10
 
 background-opacity = .9
 background-blur = true
 
-macos-titlebar-style = "native"
 macos-icon = "retro"
 
 font-family = "Iosevka SS15"
 font-family = "Iosevka Nerd Font Mono"
-font-size = 22
+font-size = 20
 
 adjust-underline-position = 20%
 adjust-underline-thickness = 10%
