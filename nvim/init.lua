@@ -3,7 +3,7 @@ local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
 if not (vim.uv or vim.loop).fs_stat(lazypath) then
 	local lazyrepo = "https://github.com/folke/lazy.nvim.git"
 	local out = vim.fn.system({ "git", "clone", "--filter=blob:none", "--branch=stable", lazyrepo, lazypath })
-  if vim.v.shell_error ~= 0 then
+	if vim.v.shell_error ~= 0 then
 		vim.api.nvim_echo({
 			{ "Failed to clone lazy.nvim:\n", "ErrorMsg" },
 			{ out, "WarningMsg" },
@@ -63,6 +63,7 @@ require("lazy").setup({
 			lazy = false,
 			priority = 1000,
 			opts = {
+        variant = "light",
 				transparent = true,
 			},
 			config = function(_, opts)
@@ -75,15 +76,15 @@ require("lazy").setup({
 		{
 			"mason-org/mason-lspconfig.nvim",
 			opts = {
-				ensure_installed = { "lua_ls", "gopls" },
+				ensure_installed = { "lua_ls", "gopls", "html", "cssls", "ts_ls" },
 			},
 			dependencies = {
 				{ "mason-org/mason.nvim", opts = {} },
-        "neovim/nvim-lspconfig",
+				"neovim/nvim-lspconfig",
 				{
 					"WhoIsSethDaniel/mason-tool-installer.nvim",
 					opts = {
-						ensure_installed = { "stylua" },
+						ensure_installed = { "stylua", "prettier" },
 					},
 				},
 			},
@@ -93,13 +94,19 @@ require("lazy").setup({
 		{
 			"stevearc/conform.nvim",
 			opts = {
-				lua = { "stylua" },
+        formatters_by_ft = {
+          lua = { "stylua" },
+          html = { "prettier" },
+          css = { "prettier" },
+          javascript = { "prettier" },
+        },
 			},
 		},
 
 		-- Blink Cmp
 		{
 			"saghen/blink.cmp",
+      dependencies = { "rafamadriz/friendly-snippets" },
 			version = "1.*",
 			---@module 'blink.cmp'
 			---@type blink.cmp.Config
@@ -115,7 +122,7 @@ require("lazy").setup({
 					},
 				},
 				sources = {
-					default = { "lsp", "path", "buffer" },
+					default = { "lsp", "path", "snippets", "buffer" },
 					per_filetype = {
 						markdown = { "lsp" },
 						latex = { "lsp" },
@@ -211,6 +218,15 @@ require("lazy").setup({
 				require("tiny-inline-diagnostic").setup(opts)
 				vim.diagnostic.config({ virtual_text = false }) -- Disable Neovim's default virtual text diagnostics
 			end,
+		},
+
+		--Indent Blankline
+		{
+			"lukas-reineke/indent-blankline.nvim",
+			main = "ibl",
+			---@module "ibl"
+			---@type ibl.config
+			opts = {},
 		},
 	},
 	install = { colorscheme = { "zen" } },
