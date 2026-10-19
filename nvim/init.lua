@@ -57,13 +57,17 @@ end, { desc = "Format buffer" })
 -- Setup lazy.nvim
 require("lazy").setup({
 	spec = {
-		-- Colorscheme
+
+		-------------------
+		--- COLORSCHEME ---
+		-------------------
+
 		{
 			"nendix/zen.nvim",
 			lazy = false,
 			priority = 1000,
 			opts = {
-        variant = "light",
+				variant = "dark",
 				transparent = true,
 			},
 			config = function(_, opts)
@@ -72,11 +76,14 @@ require("lazy").setup({
 			end,
 		},
 
-		-- LSP Config
+		-------------------------
+		--- LSP & TEXTEDITING ---
+		-------------------------
+
 		{
 			"mason-org/mason-lspconfig.nvim",
 			opts = {
-				ensure_installed = { "lua_ls", "gopls", "html", "cssls", "ts_ls" },
+				ensure_installed = { "lua_ls", "gopls", "html", "cssls", "ts_ls", "jsonls", "marksman" },
 			},
 			dependencies = {
 				{ "mason-org/mason.nvim", opts = {} },
@@ -90,23 +97,34 @@ require("lazy").setup({
 			},
 		},
 
-		-- Conform
 		{
-			"stevearc/conform.nvim",
+			"folke/lazydev.nvim",
+			ft = "lua",
 			opts = {
-        formatters_by_ft = {
-          lua = { "stylua" },
-          html = { "prettier" },
-          css = { "prettier" },
-          javascript = { "prettier" },
-        },
+				library = {
+					{ path = "${3rd}/luv/library", words = { "vim%.uv" } },
+				},
 			},
 		},
 
-		-- Blink Cmp
+		{
+			"stevearc/conform.nvim",
+			opts = {
+				formatters_by_ft = {
+					lua = { "stylua" },
+					html = { "prettier" },
+					css = { "prettier" },
+					javascript = { "prettier" },
+					json = { "prettier" },
+					jsonc = { "prettier" },
+					markdown = { "prettier" },
+				},
+			},
+		},
+
 		{
 			"saghen/blink.cmp",
-      dependencies = { "rafamadriz/friendly-snippets" },
+			dependencies = { "rafamadriz/friendly-snippets" },
 			version = "1.*",
 			---@module 'blink.cmp'
 			---@type blink.cmp.Config
@@ -139,14 +157,30 @@ require("lazy").setup({
 			opts_extend = { "sources.default" },
 		},
 
-		-- FZF
+		{
+			"MeanderingProgrammer/render-markdown.nvim",
+			dependencies = { "nvim-mini/mini.icons" },
+			---@module 'render-markdown'
+			---@type render.md.UserConfig
+			opts = {},
+		},
+
+		--------------------
+		--- FILEBROWSING ---
+		--------------------
+
 		{
 			"ibhagwan/fzf-lua",
+			event = "VeryLazy",
 			dependencies = { "nvim-mini/mini.icons" },
 			---@module "fzf-lua"
 			---@type fzf-lua.Config|{}
 			---@diagnostic disable: missing-fields
 			opts = {},
+			config = function(_, opts)
+				require("fzf-lua").setup(opts)
+				require("fzf-lua").register_ui_select()
+			end,
 			keys = {
 				{
 					"<leader>ff",
@@ -173,7 +207,6 @@ require("lazy").setup({
 			---@diagnostic enable: missing-fields
 		},
 
-		-- Yazi
 		---@type LazySpec
 		{
 			"mikavilpas/yazi.nvim",
@@ -202,7 +235,10 @@ require("lazy").setup({
 			end,
 		},
 
-		-- Inline diagnostic
+		-------------
+		--- MISC. ---
+		-------------
+
 		{
 			"rachartier/tiny-inline-diagnostic.nvim",
 			event = "VeryLazy",
@@ -220,7 +256,6 @@ require("lazy").setup({
 			end,
 		},
 
-		--Indent Blankline
 		{
 			"lukas-reineke/indent-blankline.nvim",
 			main = "ibl",
@@ -228,7 +263,72 @@ require("lazy").setup({
 			---@type ibl.config
 			opts = {},
 		},
+
+		{
+			"nvim-lualine/lualine.nvim",
+			dependencies = { "nvim-tree/nvim-web-devicons" },
+			opts = {},
+		},
+
+		{
+			"folke/which-key.nvim",
+			event = "VeryLazy",
+			opts = {
+				preset = "helix",
+			},
+			keys = {
+				{
+					"<leader>?",
+					function()
+						require("which-key").show({ global = false })
+					end,
+					desc = "Buffer Local Keymaps (which-key)",
+				},
+			},
+		},
+
+		{
+			"nvim-mini/mini.pairs",
+			version = false,
+			opts = {},
+		},
+
+		{
+			"NvChad/nvim-colorizer.lua",
+			config = function()
+				require("colorizer").setup({
+					user_default_options = {
+						names = false, -- enable CSS color names (e.g. "Blue")
+						RGB = true, -- #RGB hex codes
+						RRGGBB = true, -- #RRGGBB hex codes
+						mode = "background", -- "background", "foreground", or "virtualtext"
+					},
+				})
+			end,
+		},
+
+		{
+			"karb94/neoscroll.nvim",
+			opts = {},
+		},
+
+		{
+			"derektata/lorem.nvim",
+			opts = {
+				sentence_length = "mixed", -- using a default configuration
+				comma_chance = 0.3, -- 30% chance to insert a comma
+				max_commas = 2, -- maximum 2 commas per sentence
+			},
+
+			{
+				"barrett-ruth/live-server.nvim",
+				url = "https://forge.barrettruth.com/barrettruth/live-server.nvim",
+			},
+		},
 	},
 	install = { colorscheme = { "zen" } },
-	checker = { enabled = true },
+	checker = { enabled = true, notify = false },
+	ui = {
+		border = "single",
+	},
 })

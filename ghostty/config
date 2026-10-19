@@ -1,4 +1,4 @@
-theme = zen_light
+theme = zen_dark
 window-padding-x = 20
 window-padding-y = 0, 20
 window-padding-balance = true
@@ -8,7 +8,7 @@ window-padding-balance = true
 
 macos-icon = "retro"
 
-font-family = "Iosevka SS08"
+font-family = "Iosevka Term SS15"
 font-family = "IosevkaTermSlab Nerd Font Mono"
 font-size = 14
 # font-feature = -calt
